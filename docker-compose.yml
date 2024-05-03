@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13.0-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    env_file:
+      - .env
+
+  server:
+    tty: true
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    entrypoint: ./server-entrypoint.sh
+    volumes:
+      - static_volume:/app/app/static
+    expose:
+      - 8000
+    env_file:
+      - .env
+    environment:
+      POSTGRES_SERVER: db
+    depends_on:
+      - db
+
+  nginx:
+    restart: always
+    image: nginx:1.23-alpine
+    ports:
+      - 80:80
+    depends_on:
+      - server
+    volumes:
+      - ./docker/default.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/app/static
+
+volumes:
+  static_volume: {}
+  postgres_data: {}

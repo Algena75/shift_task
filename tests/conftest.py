@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
 from shift_task.core.user import current_superuser, current_user
 from shift_task.main import lifespan
 from shift_task.schemas.user import UserSalaryCreate
+from shift_task.core.config import settings
 
 try:
     from shift_task.main import app
@@ -50,9 +51,9 @@ def anyio_backend():
 
 @pytest.fixture
 async def async_db_engine():
-    DB_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/shifttask"
+    SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
-    engine = create_async_engine(DB_URL)
+    engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)

@@ -4,14 +4,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shift_task.core.models import User
+from shift_task.core.config import settings
 
 
 @pytest.mark.anyio
 async def test_superuser_can_view_users(superuser_client: AsyncClient):
     response = await superuser_client.get("/users")
-    # await print(response.json())
     assert response.status_code == 200
-    assert 'admin@admin.ru' in response.text
+    assert settings.first_superuser_email in response.text
 
 
 @pytest.mark.anyio
