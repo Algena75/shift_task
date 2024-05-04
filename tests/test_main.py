@@ -9,6 +9,10 @@ from shift_task.core.models import User
 from shift_task.core.user import current_user
 from shift_task.main import app
 
+TEST_USER = dict(email="anyuser@example.com",
+                 password="anyuserpassword",
+                 salary=50000)
+
 
 @pytest.mark.anyio
 async def test_superuser_can_view_users(superuser_client: AsyncClient):
@@ -30,9 +34,7 @@ async def test_user_cant_view_users(user_client: AsyncClient):
     assert response.json() == {"detail": "Unauthorized"}
 
 
-@pytest.mark.parametrize("new_user_data", ({"email": "anyuser@example.com",
-                                            "password": "anyuserpassword",
-                                            "salary": 50000},))
+@pytest.mark.parametrize("new_user_data", (TEST_USER,))
 @pytest.mark.anyio
 async def test_superuser_can_add_users(superuser_client: AsyncClient,
                                        new_user_data):
@@ -44,8 +46,9 @@ async def test_superuser_can_add_users(superuser_client: AsyncClient,
     assert new_user_data.get('email') in response.text
 
 
-@pytest.mark.parametrize("new_user_data", ({"username": "anyuser@example.com",
-                                            "password": "anyuserpassword"},))
+@pytest.mark.parametrize("new_user_data",
+                         ({"username": TEST_USER.get("email"),
+                          "password": TEST_USER.get("password")},))
 @pytest.mark.anyio
 async def test_new_user_can_get_token_and_salary_info(
     client: AsyncClient, async_db: AsyncSession, new_user_data
@@ -66,7 +69,7 @@ async def test_new_user_can_get_token_and_salary_info(
     response = await client.get('/users/me',
                                 headers={'Authorization': access_token})
     assert response.status_code == status.HTTP_200_OK
-    assert 'shift_date' in response.json()
-    assert response.json()['value'] == 50000
+    assert 'shift_date', 'value' in response.json()
+    assert response.json()['value'] == TEST_USER.get("salary")
     await async_db.delete(new_user)
     await async_db.commit()
