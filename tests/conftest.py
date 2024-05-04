@@ -32,15 +32,15 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 user = UserSalaryCreate(
     email="testuser@example.com",
-    password="testuserpassword",
+    password="aaa",
     is_superuser=False,
-    salary=100000
+    salary=20000
 )
 superuser = UserSalaryCreate(
     email="testsuperuser@example.com",
     password="bbb",
     is_superuser=True,
-    salary=100000
+    salary=20000
 )
 
 
@@ -80,8 +80,9 @@ async def async_db(async_db_engine):
 @pytest.fixture(scope='session')
 async def client():
     async with lifespan(app):
-        async with AsyncClient(app=app, base_url="http://localhost") as cl:
-            yield cl
+        async with AsyncClient(app=app,
+                               base_url="http://localhost") as client:
+            yield client
 
 
 @pytest.fixture(scope='function')

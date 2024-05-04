@@ -12,6 +12,9 @@ except (NameError, ImportError):
 
 
 def test_check_migration_file_exist():
+    """
+    Проверяет наличие папки `alembic1 и файла миграций.
+    """
     app_dirs = [d.name for d in BASE_DIR.iterdir()]
     assert 'alembic' in app_dirs, (
         'В корневой директории не обнаружена папка `alembic`.'
