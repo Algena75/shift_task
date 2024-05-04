@@ -16,7 +16,7 @@
 
 
 ```
-git clone git@github.com:Algena75/shift_task.git
+git clone git@gitlub.com:algena75/shift_task.git
 ```
 
 ```
