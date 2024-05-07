@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 
-from shift_task.core.user import current_superuser, current_user
+from shift_task.core.user import current_superuser
 from shift_task.main import lifespan
 from shift_task.schemas.user import UserSalaryCreate
 from shift_task.core.config import settings
@@ -30,12 +30,6 @@ except (NameError, ImportError):
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
-user = UserSalaryCreate(
-    email="testuser@example.com",
-    password="aaa",
-    is_superuser=False,
-    salary=20000
-)
 superuser = UserSalaryCreate(
     email="testsuperuser@example.com",
     password="bbb",
@@ -82,14 +76,9 @@ async def client():
     async with lifespan(app):
         async with AsyncClient(app=app,
                                base_url="http://localhost") as client:
+            if app.dependency_overrides.get(current_superuser):
+                del app.dependency_overrides[current_superuser]
             yield client
-
-
-@pytest.fixture(scope='function')
-async def user_client(client):
-    app.dependency_overrides[current_user] = lambda: user
-    del app.dependency_overrides[current_superuser]
-    return client
 
 
 @pytest.fixture(scope='function')
